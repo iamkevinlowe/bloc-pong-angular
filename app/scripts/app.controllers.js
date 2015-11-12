@@ -25,6 +25,7 @@
       this.y = y;
       this.width = 5;
       this.height = 100;
+      this.speed = 20;
     }
 
     Paddle.prototype.render = function() {
@@ -35,6 +36,21 @@
         this.width,
         this.height
       );
+    };
+
+    Paddle.prototype.move = function(keycode) {
+      blocPongContext.clearRect(
+        this.x,
+        this.y,
+        this.width,
+        this.height
+      );
+
+      if (keycode == 38 && this.y > 0) {
+        this.y -= this.speed;
+      } else if (keycode == 40 && this.y + this.height < HEIGHT) {
+        this.y += this.speed;
+      }
     };
 
     // Ball constructor
@@ -66,8 +82,24 @@
       ball.render();
     }
 
-    window.onload = render;
+    var animate = window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame    ||
+            window.oRequestAnimationFrame      || 
+            window.msRequestAnimationFrame     ||
+            function(callback) { window.setTimeout(callback, 1000/60) };
+
+    function step() {
+      render();
+      animate(step);
+    }
+
+    window.onload = step;
+    window.addEventListener('keydown', function(e) {
+      e.preventDefault();
+      leftPaddle.move(e.keyCode);
+    });
 
   }
-  
+
 })();
