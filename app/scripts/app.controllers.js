@@ -8,6 +8,12 @@
     ]);
 
   function BlocPongController($scope) {
+    var playerOneScore = 0;
+    var playerTwoScore = 0;
+
+    var p1ScoreElement = document.getElementById('player-one-score');
+    var p2ScoreElement = document.getElementById('player-two-score');
+
     var blocPongCanvas = document.getElementById('bloc-pong');
     var blocPongContext = blocPongCanvas.getContext('2d');
     var WIDTH = blocPongCanvas.width;
@@ -90,6 +96,12 @@
 
     Ball.prototype.wallHit = function() {
       var position = this.x;
+
+      if (position < WIDTH / 2) {
+        p2ScoreElement.innerHTML = ++playerTwoScore;
+      } else {
+        p1ScoreElement.innerHTML = ++playerOneScore;
+      }
       
       this.x = WIDTH / 2;
       this.y = HEIGHT / 2;
@@ -113,7 +125,7 @@
       // Parabolic function
       var speedMultiplier = (a * (x * x)) + (b * x) + c;
 
-      this.xSpeed *= -1;
+      this.xSpeed *= -1.1;
       this.ySpeed *= speedMultiplier;
     };
 

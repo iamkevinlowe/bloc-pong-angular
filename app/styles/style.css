@@ -8,3 +8,13 @@ body {
   display: block;
   margin: auto;
 }
+
+#scores {
+  position: absolute;
+  top: 80px;
+  left: 0px;
+  right: 0px;
+  width: 600px;
+  margin: auto;
+  z-index: 10;
+}
