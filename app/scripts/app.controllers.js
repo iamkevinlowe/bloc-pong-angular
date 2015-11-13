@@ -10,14 +10,8 @@
   function BlocPongController($scope) {
     var blocPongCanvas = document.getElementById('bloc-pong');
     var blocPongContext = blocPongCanvas.getContext('2d');
-
     var WIDTH = blocPongCanvas.width;
     var HEIGHT = blocPongCanvas.height;
-
-    // Shapes
-    var leftPaddle = new Paddle(10, HEIGHT / 2 - 50);
-    var rightPaddle = new Paddle(WIDTH - 15, HEIGHT / 2 - 50); 
-    var ball = new Ball(WIDTH/2, HEIGHT/2);
 
     // Paddle constructor
     function Paddle(x, y) {
@@ -25,7 +19,7 @@
       this.y = y;
       this.width = 5;
       this.height = 100;
-      this.speed = 20;
+      this.speed = 50;
     }
 
     Paddle.prototype.render = function() {
@@ -46,6 +40,25 @@
       }
     };
 
+    // Computer constructor
+    function Computer(x, y) {
+      Paddle.call(this, x, y);
+      this.speed = 5;
+    }
+
+    Computer.prototype = new Paddle();
+    Computer.prototype.constructor = Computer;
+
+    Computer.prototype.update = function () {
+      var yCenter = this.y + this.height / 2;
+
+      if (ball.y < yCenter - this.speed) {
+        this.move(38);
+      } else if (ball.y > yCenter + this.speed) {
+        this.move(40);
+      }
+    }
+
     // Ball constructor
     function Ball(x, y) {
       this.x = x;
@@ -54,9 +67,55 @@
       this.startingAngle = 0;
       this.endingAngle = 2 * Math.PI;
       this.counterClockwise = false;
-      this.xSpeed = Math.random() < 0.5 ? -1 * 5 : 5;
-      this.ySpeed = Math.random() < 0.5 ? Math.floor(Math.random() * 4) - 5 : Math.floor(Math.random() * 4) + 1;
+      this.xSpeed = Math.random() < 0.5 ? -1 * 4 : 4;
+      this.ySpeed = Math.random() < 0.5 ? Math.floor(Math.random() * 3) - 4 : Math.floor(Math.random() * 4) + 1;
     }
+
+    Ball.prototype.collissionCheck = function() {
+      if (this.x - this.radius <= 0 || this.x + this.radius >= WIDTH) {       // Ball hits left or right wall
+        this.wallHit();
+      } else if (this.y - this.radius <= 0 ||   // Ball hits top or bottom of wall
+          this.y + this.radius >= HEIGHT) {
+        this.ySpeed *= -1;
+      } else if (this.x - this.radius <= leftPaddle.x + leftPaddle.width &&    // Ball hits left paddle
+        this.y <= leftPaddle.y + leftPaddle.height &&
+        this.y >= leftPaddle.y) {
+          this.paddleHit(leftPaddle);
+      } else if (this.x + this.radius >= rightPaddle.x &&                      // Ball hits right paddle
+        this.y <= rightPaddle.y + rightPaddle.height &&
+        this.y >= rightPaddle.y) {
+          this.paddleHit(rightPaddle);
+      }
+    };
+
+    Ball.prototype.wallHit = function() {
+      var position = this.x;
+      
+      this.x = WIDTH / 2;
+      this.y = HEIGHT / 2;
+      this.xSpeed = 0;
+      this.ySpeed = 0;
+
+      setTimeout(reset(position), 3000);
+    };
+
+    function reset(position) {
+      return function() {
+        ball.xSpeed = position < WIDTH / 2 ? -4 : 4;
+        ball.ySpeed = Math.random() < 0.5 ? Math.floor(Math.random() * 3) - 4 : Math.floor(Math.random() * 4) + 1;
+      };
+    }
+
+    Ball.prototype.paddleHit = function(paddle) {
+      var a = 0.0001, b = 0.005, c = 0.5, x = null;
+      x = this.ySpeed < 0 ? paddle.y + paddle.height - this.y : this.y - paddle.y;
+      
+      // Parabolic function
+      var speedMultiplier = (a * (x * x)) + (b * x) + c;
+
+      this.xSpeed *= -1;
+      this.ySpeed *= speedMultiplier;
+    };
 
     Ball.prototype.render = function() {
       blocPongContext.fillStyle = 'rgb(255,255,255)';
@@ -71,47 +130,26 @@
       );
       blocPongContext.fill();
 
-      collissionCheck();
+      this.collissionCheck();
 
       ball.x += ball.xSpeed;
       ball.y += ball.ySpeed;
     };
 
-    function collissionCheck() {
-      if (ball.x < 0) {                         // Ball hits left wall
-        console.log("Player 2 wins");
-      } else if (ball.x > WIDTH) {              // Ball hits right wall
-        console.log("Player 1 wins");
-      } else if (ball.y - ball.radius <= 0 ||   // Ball hits top or bottom of wall
-          ball.y + ball.radius >= HEIGHT) {
-        ball.ySpeed *= -1;
-      } else if (ball.x - ball.radius <= leftPaddle.x + leftPaddle.width &&    // Ball hits left paddle
-        ball.y <= leftPaddle.y + leftPaddle.height &&
-        ball.y >= leftPaddle.y) {
-          paddleHit(leftPaddle);
-      } else if (ball.x + ball.radius >= rightPaddle.x &&                      // Ball hits right paddle
-        ball.y <= rightPaddle.y + rightPaddle.height &&
-        ball.y >= rightPaddle.y) {
-          paddleHit(rightPaddle);
-      }
-    }
-
-    function paddleHit(paddle) {
-      var a = 0.0001, b = 0.005, c = 0.5, x = null;
-      x = ball.ySpeed < 0 ? paddle.y + paddle.height - ball.y : ball.y - paddle.y;
-      
-      // Parabolic function
-      var speedMultiplier = (a * (x * x)) + (b * x) + c;
-
-      ball.xSpeed *= -1;
-      ball.ySpeed *= speedMultiplier;
-    }
+    // Shapes
+    var leftPaddle = new Paddle(20, HEIGHT / 2 - 50);
+    // var rightPaddle = new Paddle(WIDTH - 15, HEIGHT / 2 - 50); 
+    var rightPaddle = new Computer(WIDTH - 25, HEIGHT / 2 - 50);
+    var ball = new Ball(WIDTH/2, HEIGHT/2);
 
     function render() {
       blocPongContext.clearRect(0,0,WIDTH,HEIGHT);
       leftPaddle.render();
       rightPaddle.render();
       ball.render();
+      if (rightPaddle instanceof Computer) {
+        rightPaddle.update();
+      }
     }
 
     var animate = window.requestAnimationFrame ||
