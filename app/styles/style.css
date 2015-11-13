@@ -18,3 +18,9 @@ body {
   margin: auto;
   z-index: 10;
 }
+
+@media (max-width: 840px) {
+  #scores {
+    margin-left: 113px;
+  }  
+}
