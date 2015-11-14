@@ -1,6 +1,17 @@
 body {
   background-color: rgb(0,0,0);
   color: rgb(255,255,255);
+  min-width: 840px;
+}
+
+a, a:link, a:visited {
+  text-decoration: none;
+  color: rgb(255,255,255);
+}
+
+a:hover {
+  text-decoration: none;
+  color: rgb(250,250,150);
 }
 
 #bloc-pong {
@@ -9,18 +20,60 @@ body {
   margin: auto;
 }
 
-#scores {
+.overlay {
   position: absolute;
-  top: 80px;
-  left: 0px;
-  right: 0px;
-  width: 600px;
+  left: 0;
+  right: 0;
   margin: auto;
   z-index: 10;
 }
 
+#scores {
+  top: 10px;
+  width: 600px;
+}
+
+#start-menu {
+  border: 5px solid rgb(255,255,255);
+  background-color: rgb(0,0,0);
+  top: 200px;
+  width: 700px;
+  height: 300px;
+}
+
+#vs {
+  position: absolute;
+  top: 30px;
+  left: 300px;
+  width: 120px;
+}
+
+#start-descriptions {
+  margin-top: 25px;
+}
+
+#start-button {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 20px;
+}
+
+#start-button p a {
+  padding: 5px 30px;
+  border: 2.5px dotted rgb(255,255,255);
+}
+
+#start-button p a:active {
+  border-style: solid;
+}
+
 @media (max-width: 840px) {
   #scores {
-    margin-left: 113px;
+    margin-left: 120px;
   }  
+
+  #start-menu {
+    margin-left: 70px;
+  }
 }

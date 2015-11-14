@@ -6,11 +6,67 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
     <link rel="stylesheet" href="/styles/style.css">
 </head>
-<body ng-app="app">
-    <div class="container-fluid" ui-view></div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.7/angular.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.15/angular-ui-router.min.js"></script>
+<body>
+    <div class="container-fluid">
+      
+      <div class="row">
+        <div class="col-xs-12">
+          <h1 class="text-center">Bloc Pong</h1>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-xs-12">
+          <p class="overlay" id="scores">
+            <span class="h1 pull-left" id="player-one-score">0</span>
+            <span class="h1 pull-right" id="player-two-score">0</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="row text-center">
+        <div class="col-xs-12 overlay" id="start-menu">
+          <div class="row">
+            <div class="col-xs-6">
+              <p class="h1">P1</p>
+            </div>
+            <div class="col-xs-6">
+              <p class="h1">
+                <a href="#" onclick="changePlayerTwo(event, this)">COM</a>
+              </p>
+            </div>
+          </div>
+
+          <div class="row" id="vs">
+            <div class="col-xs-12">
+              <p class="h4">vs.</p>
+            </div>
+          </div>
+          
+          <div class="row" id="start-descriptions">
+            <div class="col-xs-6">
+              <p id="player-one-description"><p>
+            </div>
+
+            <div class="col-xs-6">
+              <p id="player-two-description"><p>
+            </div>
+          </div>
+
+          <div class="row" id="start-button">
+            <div class="col-xs-12">
+              <p class="h1">
+                <a href="#" onclick="startGame(event)">Start!</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <canvas id="bloc-pong" width="800" height="600"></canvas>
+
+    </div>
+    <script src="/scripts/app.objects.js"></script>
     <script src="/scripts/app.js"></script>
-    <script src="/scripts/app.controllers.js"></script>
 </body>
 </html>
