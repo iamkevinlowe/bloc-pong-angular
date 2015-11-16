@@ -67,27 +67,52 @@ function Ball(x, y) {
   this.ySpeed = Math.random() < 0.5 ? Math.floor(Math.random() * 3) - 4 : Math.floor(Math.random() * 4) + 1;
 }
 
-Ball.prototype.collissionCheck = function() {
-  if (this.x - this.radius <= leftPaddle.x + leftPaddle.width && withinPaddle(this, leftPaddle)) {
-    this.paddleHit(leftPaddle);
-  } else if (this.x + this.radius >= rightPaddle.x && withinPaddle(this, rightPaddle)) {
-    this.paddleHit(rightPaddle);
-  } else if (this.x - this.radius <= 0 || this.x + this.radius >= WIDTH) {
+Ball.prototype.collisionCheck = function() {
+  var ballRect = {
+    top: this.y - this.radius,
+    bottom: this.y + this.radius,
+    left: this.x - this.radius,
+    right: this.x + this.radius
+  };
+  var leftRange = {
+    top: leftPaddle.y,
+    bottom: leftPaddle.y + leftPaddle.height,
+    left: leftPaddle.x,
+    right: leftPaddle.x + leftPaddle.width
+  };
+  var rightRange = {
+    top: rightPaddle.y,
+    bottom: rightPaddle.y + rightPaddle.height,
+    left: rightPaddle.x,
+    right: rightPaddle.x + rightPaddle.height
+  };
+
+  if (ballRect.left <= 0 || ballRect.right >= WIDTH) {
     wallHit(this);
+  } else if (this.xSpeed < 0 && intersectRect(ballRect, leftRange)) {
+    paddleReflect(this, leftRange);
+  } else if (this.xSpeed > 0 && intersectRect(ballRect, rightRange)) {
+    paddleReflect(this, rightRange);
   }
 
-  if (this.y - this.radius <= 0 || this.y + this.radius >= HEIGHT) {
+  if (ballRect.top <= 0 || ballRect.bottom >= HEIGHT) {
     this.ySpeed *= -1;
   }
 };
 
-function withinPaddle(ball, paddle) {
-  if (ball.y + ball.radius >= paddle.y &&
-    ball.y - ball.radius <= paddle.y + paddle.height) {
-    return true;
-  } else {
-    return false;
-  }
+function intersectRect(r1, r2) {
+  return !(r2.left > r1.right ||
+           r2.right < r1.left ||
+           r2.top > r1.bottom ||
+           r2.bottom < r1.top);
+}
+
+function paddleReflect(ball, paddle) {
+  var a = 0.0001, b = 0.005, c = 0.5, x = null;
+  x = ball.ySpeed < 0 ? paddle.bottom - ball.y : ball.y - paddle.top;
+
+  ball.xSpeed *= -1.1;
+  ball.ySpeed *= (a * (x * x)) + (b * x) + c;
 }
 
 function wallHit(ball) {
@@ -98,13 +123,19 @@ function wallHit(ball) {
   } else {
     p1ScoreElement.innerHTML = ++playerOneScore;
   }
-  
+
   ball.x = WIDTH / 2;
   ball.y = HEIGHT / 2;
   ball.xSpeed = 0;
   ball.ySpeed = 0;
 
-  setTimeout(reset(position), 2000);
+  if (playerOneScore == 11) {
+    gameOver('p1')
+  } else if (playerTwoScore == 11) {
+    gameOver('p2');
+  } else {
+    setTimeout(reset(position), 2000);
+  }
 }
 
 function reset(position) {
@@ -113,17 +144,6 @@ function reset(position) {
     ball.ySpeed = Math.random() < 0.5 ? Math.floor(Math.random() * 3) - 4 : Math.floor(Math.random() * 4) + 1;
   };
 }
-
-Ball.prototype.paddleHit = function(paddle) {
-  var a = 0.0001, b = 0.005, c = 0.5, x = null;
-  x = this.ySpeed < 0 ? paddle.y + paddle.height - this.y : this.y - paddle.y;
-  
-  // Parabolic function
-  var speedMultiplier = (a * (x * x)) + (b * x) + c;
-
-  this.xSpeed *= -1.1;
-  this.ySpeed *= speedMultiplier;
-};
 
 Ball.prototype.render = function() {
   blocPongContext.fillStyle = 'rgb(255,255,255)';
@@ -138,7 +158,7 @@ Ball.prototype.render = function() {
   );
   blocPongContext.fill();
 
-  this.collissionCheck();
+  this.collisionCheck();
 
   ball.x += ball.xSpeed;
   ball.y += ball.ySpeed;
